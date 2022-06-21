@@ -1,7 +1,7 @@
 package br.com.ottech.models;
 
-import com.sun.istack.NotNull;
 import lombok.*;
+import org.hibernate.validator.constraints.br.CNPJ;
 import javax.persistence.*;
 
 @Getter
@@ -14,8 +14,8 @@ import javax.persistence.*;
 public class Cnpj {
 
 
-    @NotNull
-    @Column(name = "numero_cnpj", unique = true)
+    @CNPJ
+    @Column(name = "numero_cnpj", unique = true, nullable = false)
     private String numCnpj;
 
 }

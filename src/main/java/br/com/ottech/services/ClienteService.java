@@ -1,6 +1,5 @@
 package br.com.ottech.services;
 
-import br.com.ottech.dtos.ClienteDTO;
 import br.com.ottech.models.Cliente;
 import br.com.ottech.repositories.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;

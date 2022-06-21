@@ -1,6 +1,5 @@
 package br.com.ottech.controllers;
 
-import br.com.ottech.models.Projeto;
 import br.com.ottech.models.Proposta;
 import br.com.ottech.repositories.PropostaRepository;
 import br.com.ottech.services.PropostaService;
@@ -9,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.util.List;
 

@@ -1,15 +1,11 @@
 package br.com.ottech.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -18,16 +14,19 @@ import java.util.List;
 @Entity
 @Table(name = "tb_projeto_cliente")
 public class ProjetoCliente {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "projeto_cliente_id")
     private Integer id;
 
     private String observacoes;
 
-    @Column(name = "id_cliente")
-    private Integer idCliente;
+    @ManyToMany(mappedBy = "projetos")
+    Set<Cliente> cliente;
 
-    @Column(name = "id_proposta")
-    private Integer idProposta;
+    @ManyToMany(mappedBy = "projeto")
+    Set<Projeto> projeto;
+
 
 }
