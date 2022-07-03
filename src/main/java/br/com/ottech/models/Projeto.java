@@ -5,7 +5,6 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -31,14 +30,5 @@ public class Projeto {
     @NotBlank(message = "A descrição do projeto não deve ser vazia.")
     private String descricaoProjeto;
 
-    @ManyToMany
-    @JoinTable(
-            name = "projeto_cliente_id",
-            joinColumns = @JoinColumn(name = "id_projeto"),
-            inverseJoinColumns = @JoinColumn(name = "projeto_id"))
-    Set<ProjetoCliente> projeto;
-
-   /* @ManyToMany(mappedBy = "projeto")
-    private List<Proposta> proposta;*/
 
 }

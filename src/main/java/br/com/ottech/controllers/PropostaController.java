@@ -1,14 +1,16 @@
 package br.com.ottech.controllers;
 
+import br.com.ottech.dtos.PropostaDTO;
 import br.com.ottech.models.Proposta;
 import br.com.ottech.repositories.PropostaRepository;
 import br.com.ottech.services.PropostaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -24,15 +26,22 @@ public class PropostaController {
 
     @PostMapping("/registrar")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Proposta> registrarProposta(@Valid @RequestBody Proposta proposta) {
-        return service.registrarProposta(proposta)
-                .map(respostaAgendar -> ResponseEntity.status(HttpStatus.CREATED).body(respostaAgendar))
-                .orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    public ResponseEntity<Long> save( @RequestBody PropostaDTO propostaDTO) {
+        Proposta proposta = service.registrarProposta(propostaDTO);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @GetMapping
-    public List<Proposta> findAll(){
-        return repository.findAll();
+    public ResponseEntity find(Proposta filtro){
+        ExampleMatcher matcher = ExampleMatcher
+                .matching()
+                .withIgnoreCase()
+                .withStringMatcher(
+                        ExampleMatcher.StringMatcher.CONTAINING );
+
+        Example example = Example.of(filtro, matcher);
+        List<Proposta> lista = repository.findAll(example);
+        return ResponseEntity.ok(lista);
     }
 
     @DeleteMapping("/{id}")
@@ -45,7 +54,6 @@ public class PropostaController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
-
 
 }
 

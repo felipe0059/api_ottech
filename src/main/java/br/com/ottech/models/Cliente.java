@@ -1,12 +1,14 @@
 package br.com.ottech.models;
 
-import com.sun.istack.NotNull;
-import lombok.*;
-import org.hibernate.validator.constraints.br.CNPJ;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,21 +28,13 @@ public class Cliente {
     @Size(min = 5, max = 50)
     private String nomeCliente;
 
-    @Embedded
-    @Column(name = "nome_cliente",unique = true, nullable = false)
-    @NotNull
-    @CNPJ
+    @OneToOne(cascade = CascadeType.ALL)
     private Cnpj numCnpj;
 
-    @ManyToMany
-    @JoinTable(
-            name = "projeto_cliente_id",
-            joinColumns = @JoinColumn(name = "id_cliente"),
-            inverseJoinColumns = @JoinColumn(name = "cliente_id"))
-    Set<ProjetoCliente> projetos;
-
-  /*  @ManyToMany(mappedBy = "cliente")
-    private List<Proposta> propostas;*/
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_cliente") //Atenção aqui !!
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<Proposta> propostas;
 
 
 

@@ -1,5 +1,7 @@
 package br.com.ottech.services;
 
+import br.com.ottech.config.regraDeNegocioException;
+import br.com.ottech.dtos.PropostaDTO;
 import br.com.ottech.models.Cliente;
 import br.com.ottech.models.Projeto;
 import br.com.ottech.models.Proposta;
@@ -10,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Service
@@ -24,20 +28,24 @@ public class PropostaService {
     @Autowired
     private PropostaRepository propostaRepository;
 
-    public Optional<Proposta> registrarProposta(Proposta proposta) {
+    @Transactional
+    public Proposta registrarProposta(PropostaDTO proposta) {
+        Long idCliente = proposta.getCliente_id();
+        clienteRepository.findById(idCliente).orElseThrow(() -> new regraDeNegocioException("Código de cliente inválido."));
 
-        Optional<Cliente> buscaCliente = clienteRepository.findById(proposta.getCliente_id());
-        Optional<Projeto> buscaProjeto = projetoRepository.findById(proposta.getProjeto_id());
+        Long idProjeto = proposta.getProjeto_id();
+        projetoRepository.findById(idProjeto).orElseThrow(() -> new regraDeNegocioException("Código do projeto inválido"));
 
-        if (buscaCliente.get().getId() != proposta.getCliente_id())
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Cliente não registrado!", null);
+        Proposta novaProposta = new Proposta();
 
-        if (buscaProjeto.get().getId() != proposta.getProjeto_id())
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,"Projeto não registrado!", null);
+        novaProposta.setProjeto_id(proposta.getProjeto_id());
+        novaProposta.setCliente_id(proposta.getCliente_id());
+        novaProposta.setData(proposta.getDataHora());
+        novaProposta.setStatus(proposta.getStatus());
 
-        return Optional.of(propostaRepository.save(proposta));
+        propostaRepository.save(novaProposta);
+
+        return null;
     }
 }
 

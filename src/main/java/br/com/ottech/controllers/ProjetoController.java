@@ -5,10 +5,12 @@ import br.com.ottech.repositories.ProjetoRepository;
 import br.com.ottech.services.ProjetoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import javax.validation.Valid;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
@@ -23,22 +25,34 @@ public class ProjetoController {
     private ProjetoService service;
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<Projeto> cadastraProjeto(@Valid @RequestBody Projeto projeto){
+    public ResponseEntity<Projeto> cadastraProjeto(@RequestBody Projeto projeto){
         return service.cadastrarProjeto(projeto)
                 .map(responseCadastrar -> ResponseEntity.status(HttpStatus.CREATED).body(responseCadastrar))
                 .orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
     }
 
     @GetMapping
-    public List<Projeto> findAll(){
-        return repository.findAll();
+    public ResponseEntity find(Projeto filtro){
+        ExampleMatcher matcher = ExampleMatcher
+                .matching()
+                .withIgnoreCase()
+                .withStringMatcher(
+                        ExampleMatcher.StringMatcher.CONTAINING );
+
+        Example example = Example.of(filtro, matcher);
+        List<Projeto> lista = repository.findAll(example);
+        return ResponseEntity.ok(lista);
     }
 
-    @PutMapping("/atualizar")
-    public ResponseEntity<Projeto> atualizaProjeto(@RequestBody Projeto projeto) {
-        return service.atualizarProjeto(projeto)
-                .map(resposta -> ResponseEntity.status(HttpStatus.OK).body(resposta))
-                .orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    @PutMapping("/atualizar/{id}")
+    public void update(@PathVariable Long id, @RequestBody Projeto projeto){
+        repository.findById(id)
+                .map( projetoExistente -> {
+                    projetoExistente.setId(projetoExistente.getId());
+                    repository.save(projeto);
+                    return projetoExistente;
+                }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Projeto não encontrado") );
     }
 
     @DeleteMapping("/{id}")
@@ -51,6 +65,4 @@ public class ProjetoController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
-
-
 }

@@ -34,18 +34,8 @@ public class Proposta {
     @Column(name = "id_projeto")
     private Long projeto_id;
 
-    /*   @ManyToOne
- @JoinTable(
-            name = "tb_cliente",
-            joinColumns = @JoinColumn(name = "id_cliente"),
-            inverseJoinColumns = @JoinColumn(name = "cliente_id"))
-    private List<Cliente> cliente = new ArrayList<>();
-
-    @ManyToOne
-  /*  @JoinTable(
-            name = "tb_projetos",
-            joinColumns = @JoinColumn(name = "id_projeto"),
-            inverseJoinColumns = @JoinColumn(name = "projeto_id"))
-    private List<Projeto> projeto = new ArrayList<>();*/
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_proposta")
+    private Projeto projeto;
 
 }

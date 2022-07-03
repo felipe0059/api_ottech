@@ -3,15 +3,15 @@ package br.com.ottech.controllers;
 import br.com.ottech.models.Cliente;
 import br.com.ottech.models.Cnpj;
 import br.com.ottech.repositories.ClienteRepository;
-import br.com.ottech.services.ClienteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import javax.validation.Valid;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/clientes")
@@ -21,35 +21,37 @@ public class ClienteController {
     @Autowired
     private ClienteRepository repository;
 
-    @Autowired
-    private ClienteService service;
 
     @PostMapping("/registrar")
-    public ResponseEntity<Cliente> cadastraCliente(@Valid @RequestBody Cliente cliente){
-        return service.cadastrarCliente(cliente)
-                .map(respostaCadastrar -> ResponseEntity.status(HttpStatus.CREATED).body(respostaCadastrar))
-                .orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    @ResponseStatus(HttpStatus.CREATED)
+    public Cliente save( @RequestBody Cliente cliente ){
+        Cnpj cnpj = new Cnpj();
+        cnpj.setNumCnpj(cliente.getNumCnpj().toString());
+        return repository.save(cliente);
     }
 
-    @PutMapping("/atualizar")
-    public ResponseEntity<Cliente> atualizaCliente(@RequestBody Cliente cliente) {
-        return service.atualizarCliente(cliente)
-                .map(resposta -> ResponseEntity.status(HttpStatus.OK).body(resposta))
-                .orElse(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    @PutMapping("/atualizar/{id}")
+    public void update(@PathVariable Long id, @RequestBody Cliente cliente){
+        repository.findById(id)
+                .map( clienteExistente -> {
+                    cliente.setId(clienteExistente.getId());
+                    repository.save(cliente);
+                    return clienteExistente;
+                }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Cliente não encontrado") );
     }
 
-    //MÉTODO BUSCA POR NOME
-    @GetMapping("/nome/{nomeCliente}")
-    public ResponseEntity<List<Cliente>> findAllByNome(@PathVariable String nomeCliente){
+    @GetMapping
+    public ResponseEntity find(Cliente filtro){
+        ExampleMatcher matcher = ExampleMatcher
+                .matching()
+                .withIgnoreCase()
+                .withStringMatcher(
+                        ExampleMatcher.StringMatcher.CONTAINING );
 
-        return ResponseEntity.ok(repository.findAllByNomeClienteContainingIgnoreCase(nomeCliente));
-    }
-
-    //MÉTODO BUSCA POR CNPJ
-    @GetMapping("/cnpj/{numCnpj}")
-    public ResponseEntity<List<Cliente>> findAllByNumCnpj(@PathVariable Cnpj numCnpj) {
-
-        return ResponseEntity.ok(repository.findAllByNumCnpj(numCnpj));
+        Example example = Example.of(filtro, matcher);
+        List<Cliente> lista = repository.findAll(example);
+        return ResponseEntity.ok(lista);
     }
 
     @DeleteMapping("/{id}")

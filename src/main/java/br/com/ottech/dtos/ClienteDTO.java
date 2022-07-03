@@ -1,6 +1,5 @@
 package br.com.ottech.dtos;
 
-import br.com.ottech.models.Cliente;
 import br.com.ottech.models.Cnpj;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,13 +12,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ClienteDTO {
 
+    private Long id;
     private String nomeCliente;
     private Cnpj numCnpj;
 
-    public ClienteDTO(Cliente cliente) {
-        this.nomeCliente = nomeCliente;
-        this.numCnpj = numCnpj;
-    }
+
+
 }
 
 
